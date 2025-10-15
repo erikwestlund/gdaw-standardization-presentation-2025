@@ -1,0 +1,254 @@
+#!/usr/bin/env bash
+# Framework CLI - Project-Local Launcher
+#
+# This script is the project-local entry point for Framework commands.
+# It's called by the global framework shim when you're inside a project directory.
+#
+# Safe to check into version control - provides project-specific context to Framework.
+
+set -e
+
+# Ensure we're in a Framework project
+if [ ! -f "config.yml" ]; then
+  echo "Error: Not in a Framework project directory (config.yml not found)"
+  echo "Run 'framework new' to create a new project"
+  exit 1
+fi
+
+# Detect color support
+if [ -t 1 ] && command -v tput >/dev/null 2>&1 && [ "$(tput colors 2>/dev/null || echo 0)" -ge 8 ]; then
+  BLUE='\033[0;34m'
+  YELLOW='\033[1;33m'
+  GREEN='\033[0;32m'
+  NC='\033[0m'
+else
+  BLUE=''
+  YELLOW=''
+  GREEN=''
+  NC=''
+fi
+
+COMMAND="${1:-help}"
+
+case "$COMMAND" in
+  make:notebook)
+    # Create a new notebook (Laravel-style)
+    shift
+    NAME="${1}"
+
+    if [ -z "$NAME" ]; then
+      printf "${BLUE}Creating new notebook...${NC}\n"
+      Rscript --quiet --no-save -e "library(framework); make_notebook()"
+    else
+      Rscript --quiet --no-save -e "library(framework); make_notebook('$NAME')"
+    fi
+    ;;
+
+  make:script)
+    # Create a new script (Laravel-style)
+    shift
+    NAME="${1}"
+
+    if [ -z "$NAME" ]; then
+      printf "${BLUE}Creating new script...${NC}\n"
+      Rscript --quiet --no-save -e "library(framework); make_script()"
+    else
+      Rscript --quiet --no-save -e "library(framework); make_script('$NAME')"
+    fi
+    ;;
+
+  make:quarto)
+    # Create a Quarto notebook explicitly
+    shift
+    NAME="${1}"
+
+    if [ -z "$NAME" ]; then
+      printf "${BLUE}Creating new Quarto notebook...${NC}\n"
+      Rscript --quiet --no-save -e "library(framework); make_qmd()"
+    else
+      Rscript --quiet --no-save -e "library(framework); make_qmd('$NAME')"
+    fi
+    ;;
+
+  make:rmd)
+    # Create an RMarkdown notebook explicitly
+    shift
+    NAME="${1}"
+
+    if [ -z "$NAME" ]; then
+      printf "${BLUE}Creating new RMarkdown notebook...${NC}\n"
+      Rscript --quiet --no-save -e "library(framework); make_rmd()"
+    else
+      Rscript --quiet --no-save -e "library(framework); make_rmd('$NAME')"
+    fi
+    ;;
+
+  make:presentation)
+    # Create a reveal.js presentation
+    shift
+    NAME="${1}"
+
+    if [ -z "$NAME" ]; then
+      printf "${BLUE}Creating new presentation...${NC}\n"
+      Rscript --quiet --no-save -e "library(framework); make_presentation()"
+    else
+      Rscript --quiet --no-save -e "library(framework); make_presentation('$NAME')"
+    fi
+    ;;
+
+  configure:data)
+    # Add data source to config
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_data()"
+    ;;
+
+  configure:connection)
+    # Add database connection to config
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_connection()"
+    ;;
+
+  configure:author)
+    # Set author information in config
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_author()"
+    ;;
+
+  configure:packages)
+    # Add package dependency to config
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_packages()"
+    ;;
+
+  configure:directories)
+    # Configure project directories
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_directories()"
+    ;;
+
+  configure:ides)
+    # Configure IDE preferences
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_ides()"
+    ;;
+
+  configure:ai-agents)
+    # Configure AI assistant support
+    shift
+    Rscript --quiet --no-save -e "library(framework); configure_ai_agents()"
+    ;;
+
+  sync:ai-context)
+    # Sync AI assistant context files
+    shift
+    Rscript --quiet --no-save -e "library(framework); ai_sync_context()"
+    ;;
+
+  hooks:list)
+    # Show git hook status
+    shift
+    Rscript --quiet --no-save -e "library(framework); hooks_list()"
+    ;;
+
+  hooks:install)
+    # Install git hooks
+    shift
+    Rscript --quiet --no-save -e "library(framework); hooks_install()"
+    ;;
+
+  hooks:uninstall)
+    # Remove git hooks
+    shift
+    Rscript --quiet --no-save -e "library(framework); hooks_uninstall()"
+    ;;
+
+  hooks:enable)
+    # Enable specific hook
+    shift
+    HOOK_NAME="${1}"
+    if [ -z "$HOOK_NAME" ]; then
+      printf "${YELLOW}Usage: framework hooks:enable <hook_name>${NC}\n"
+      printf "Available hooks: ai_sync, data_security\n"
+      exit 1
+    fi
+    Rscript --quiet --no-save -e "library(framework); hooks_enable('$HOOK_NAME')"
+    ;;
+
+  hooks:disable)
+    # Disable specific hook
+    shift
+    HOOK_NAME="${1}"
+    if [ -z "$HOOK_NAME" ]; then
+      printf "${YELLOW}Usage: framework hooks:disable <hook_name>${NC}\n"
+      printf "Available hooks: ai_sync, data_security\n"
+      exit 1
+    fi
+    Rscript --quiet --no-save -e "library(framework); hooks_disable('$HOOK_NAME')"
+    ;;
+
+  status)
+    # Show project status
+    shift
+    Rscript --quiet --no-save -e "library(framework); status()"
+    ;;
+
+  update|version|new)
+    # Pass through to framework-global for these commands
+    if command -v framework-global >/dev/null 2>&1; then
+      framework-global "$@"
+    else
+      printf "${YELLOW}Global command '$COMMAND' requires framework-global${NC}\n"
+      printf "Install with: Rscript -e \"framework::cli_install()\"\n"
+      exit 1
+    fi
+    ;;
+
+  help|--help|-h)
+    printf "${BLUE}Framework CLI - Project Commands${NC}\n\n"
+    printf "${YELLOW}Make:${NC}\n"
+    printf "  framework make:notebook [name]          Create notebook (Quarto/RMarkdown)\n"
+    printf "  framework make:quarto [name]            Create Quarto notebook (.qmd)\n"
+    printf "  framework make:rmd [name]               Create RMarkdown notebook (.Rmd)\n"
+    printf "  framework make:script [name]            Create R script (.R)\n"
+    printf "  framework make:presentation [name]      Create reveal.js presentation\n\n"
+    printf "${YELLOW}Configure:${NC}\n"
+    printf "  framework configure:author              Set author information\n"
+    printf "  framework configure:data                Add data source to config\n"
+    printf "  framework configure:connection          Add database connection\n"
+    printf "  framework configure:packages            Add package dependency\n"
+    printf "  framework configure:directories         Configure project directories\n"
+    printf "  framework configure:ides                Configure IDE preferences\n"
+    printf "  framework configure:ai-agents           Configure AI assistant support\n\n"
+    printf "${YELLOW}AI & Git Hooks:${NC}\n"
+    printf "  framework sync:ai-context               Sync AI assistant context files\n"
+    printf "  framework hooks:list                    Show git hook status\n"
+    printf "  framework hooks:install                 Install git hooks\n"
+    printf "  framework hooks:uninstall               Remove git hooks\n"
+    printf "  framework hooks:enable <name>           Enable specific hook\n"
+    printf "  framework hooks:disable <name>          Disable specific hook\n\n"
+    printf "${YELLOW}Maintenance:${NC}\n"
+    printf "  framework status                        Show project status and configuration\n"
+    printf "  framework version                       Show Framework package version\n"
+    printf "  framework update                        Update Framework from GitHub\n"
+    printf "  framework help                          Show this help\n\n"
+    printf "${YELLOW}Examples:${NC}\n"
+    printf "  framework make:notebook analysis    ${GREEN}# Create notebooks/analysis.qmd${NC}\n"
+    printf "  framework make:script process       ${GREEN}# Create scripts/process.R${NC}\n"
+    printf "  framework configure:author          ${GREEN}# Set your name and affiliation${NC}\n"
+    printf "  framework hooks:list                ${GREEN}# Check which hooks are enabled${NC}\n\n"
+    printf "${YELLOW}More Information:${NC}\n"
+    printf "  Package: https://github.com/table1/framework\n"
+    ;;
+
+  *)
+    # Unknown command - suggest they might want framework-global
+    printf "${YELLOW}Unknown project command: ${NC}$COMMAND\n\n"
+    printf "Project commands:\n"
+    printf "  make:notebook, make:quarto, make:rmd, make:script, make:presentation\n"
+    printf "  configure:data, configure:connection, configure:author, configure:packages, configure:directories\n"
+    printf "  help\n\n"
+    printf "Did you mean a global command? Run from outside the project:\n"
+    printf "  framework new, version, update\n"
+    exit 1
+    ;;
+esac

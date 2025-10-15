@@ -1,0 +1,71 @@
+# Framework
+
+# Data directories - Private data (NEVER commit these!)
+data/source/private/
+data/source/private/**
+data/in_progress/private/
+data/in_progress/private/**
+data/final/private/
+data/final/private/**
+
+# Data directories - Cache and scratch
+data/cached*
+data/cached/**
+data/scratch*
+data/scratch/**
+
+# Results directories (private by default)
+results/private/
+results/private/**
+
+# Keep directory structure but ignore contents
+data/*/.gitkeep
+!data/*/.gitkeep
+
+# R specific
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rapp.history
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# R workspace
+.Renviron
+.Rprofile
+
+# Framework internals
+framework.db
+.initiated
+.framework_renv_enabled
+.framework_scaffolded
+
+# Credentials
+.env
+.httr-oauth
+
+# renv
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/sandbox/
+renv/staging/
+
+# Cache directories
+*_cache/
+/cache/
+/*_files/
+
+# IDE specific files
+.idea
+.vscode
+
+# Config directories
+.history
+.aws
+.config
