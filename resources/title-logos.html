@@ -1,0 +1,22 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var titleSlide = document.getElementById('title-slide');
+  if (titleSlide) {
+    // Add top margin to title content to push it up
+    var titleBlock = titleSlide.querySelector('.quarto-title-block');
+    if (titleBlock) {
+      titleBlock.style.marginTop = '-50px';
+    }
+
+    // Create logos div at the bottom
+    var logosDiv = document.createElement('div');
+    logosDiv.style.cssText = 'position: absolute; bottom: -130px; left: 0; right: 0; text-align: center; width: 100%;';
+    logosDiv.innerHTML = `
+      <img src="resources/images/jhsph.png" style="width: 18%; display: inline-block; margin: 0 15px; vertical-align: middle;">
+      <img src="resources/images/geu.png" style="width: 18%; display: inline-block; margin: 0 15px; vertical-align: middle;">
+      <img src="resources/images/bloomberg-philanthropy.png" style="width: 18%; display: inline-block; margin: 0 15px; vertical-align: middle;">
+    `;
+    titleSlide.appendChild(logosDiv);
+  }
+});
+</script>

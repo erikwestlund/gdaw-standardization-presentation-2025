@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(quarto render:*)",
+      "Bash(Rscript:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -17,9 +17,17 @@ default:
   # Use auto_attach: true to load automatically, false to install only
   # --------------------------------------------------------------------------
   packages:
-    - name: ggplot2
+    - name: tidyverse
       auto_attach: true
-    - name: dplyr
+    - name: ggdag
+      auto_attach: true
+    - name: kableExtra
+      auto_attach: true
+    - name: broom
+      auto_attach: true
+    - name: scales
+      auto_attach: true
+    - name: gridExtra
       auto_attach: true
 
   # --------------------------------------------------------------------------
