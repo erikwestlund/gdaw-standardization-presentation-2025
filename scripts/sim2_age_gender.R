@@ -10,10 +10,13 @@
 #
 # REQUIRES: base_population (from 00_base_population.R)
 
+library(dplyr)
+library(tidyr)
+
 # Helper function
 inv_logit <- function(z) 1/(1+exp(-z))
 
-# Baseline logits for Woman reference group
+# Baseline logits for Women reference group
 # Target: Young ~5%, Middle ~15%, Older ~40%
 logit_base <- c(
   Young = qlogis(0.05),
@@ -21,13 +24,13 @@ logit_base <- c(
   Older = qlogis(0.40)
 )
 
-# Man effect: constant on logit scale (~+3pp at low baseline, smaller at high)
+# Men effect: constant on logit scale (~+3pp at low baseline, smaller at high)
 # This keeps gaps from blowing up at high baseline risk
 logit_male <- 0.25
 
 # Build linear predictor
 lp <- logit_base[as.character(base_population$age_group)] +
-      ifelse(base_population$sex == "Man", logit_male, 0)
+      ifelse(base_population$sex == "Men", logit_male, 0)
 
 # Convert to probabilities
 rate <- inv_logit(lp)
@@ -49,9 +52,9 @@ cat("Observed age distribution by sex (from base_population):\n")
 print(prop.table(table(sim2_data$age_group, sim2_data$sex), margin = 2))
 
 cat("\nTrue age-sex specific rates (target design):\n")
-cat("  Young: Woman ~5%, Man ~8%\n")
-cat("  Middle: Woman ~15%, Man ~20%\n")
-cat("  Older: Woman ~40%, Man ~48%\n")
+cat("  Young: Women ~5%, Men ~8%\n")
+cat("  Middle: Women ~15%, Men ~20%\n")
+cat("  Older: Women ~40%, Men ~48%\n")
 cat("  (Men higher within every age group, constant logit-scale effect)\n\n")
 
 crude_by_sex <- sim2_data %>%

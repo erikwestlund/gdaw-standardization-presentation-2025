@@ -15,6 +15,8 @@ format:
     fig-width: 10
     fig-height: 6
     include-after-body: resources/title-logos.html
+    self-contained: true
+    embed-resources: true
 execute:
   echo: true
   warning: false
@@ -33,37 +35,48 @@ source("scripts/00_base_population.R")
 
 # Source all three simulations (each uses base_population)
 source("scripts/sim1_age_only.R")
-source("scripts/sim2_age_sex.R")
-source("scripts/sim3_age_sex_goc.R")
+source("scripts/sim2_age_gender.R")
+source("scripts/sim3_age_gender_goc.R")
 
 # Set theme for plots
 theme_set(theme_minimal(base_size = 14))
 ```
 
-## Motivating Example: Delayed Seeking of Necessary Healthcare
+## Motivating Example
 
+**Delayed Seeking of Necessary Healthcare**
+
+People wait to get help until a health issue becomes serious or avoidable harm has already occurred
+
+---
+
+## Why This Matters
 
 ::: {.incremental}
-- **Motivation:** People wait to get help until a health issue becomes serious or avoidable harm has already occurred  
-  - Skipping routine visits or screenings until symptoms worsen  
-  - Delaying care due to cost, time, or caregiving demands  
-  - Arriving at the health system only during a crisis  
-- **Importance:** Reveals inequities in access, prevention, and confidence in the health system  
-- **Question For Us:** Who faces greater risk (e.g., men or women?) and how can we compare that risk fairly?
+- Skipping routine visits or screenings until symptoms worsen
+- Delaying care due to cost, time, or caregiving demands
+- Arriving at the health system only during a crisis
 :::
+
+::: {.fragment}
+**Reveals inequities** in access, prevention, and confidence in the health system
+:::
+
+---
+
+## Our Question
+
+**Who faces greater risk (e.g., men or women?) and how can we compare that risk fairly?**
 
 ## The Challenge
 
 Crude rates can mislead us about *who* is at risk and *why*
 
 
-## Meeting Themes
-
-Refresher:
+## Gender
 
 ::: {.incremental}
-- **Sex-disaggregated data** tells us who (counts)
-- **Gendered analysis** asks why — how roles, norms, and power shape health and behavior
+- **Gender-based analysis** asks why -- how roles, norms, and power shape health and behavior
 - Those processes interact with age and the gender equality context
 :::
 
@@ -78,8 +91,8 @@ Refresher:
 ::: {.incremental}
 1. **The core idea**: Statistical expectation and population structure
 2. **Example 1**: Age → Outcome (composition matters)
-3. **Example 2**: Age + Sex → Outcome (Simpson's paradox)
-4. **Example 3**: Age + Sex + Gender Opportunity → Outcome (limits of manual standardization)
+3. **Example 2**: Age + Gender → Outcome (Simpson's paradox)
+4. **Example 3**: Age + Gender + Gender Opportunity → Outcome (limits of manual standardization)
 5. **Summary**: Getting the expected value right
 :::
 
@@ -123,16 +136,23 @@ Refresher:
 
 **Research question:** What's the delayed healthcare seeking rate in our population?
 
+---
+
+## Our Simulated Data
+
 ::: {.incremental}
-- We have simulated registry data on preventable health crises
-- E.g., diabetic emergencies, hypertensive crises, or late-stage cancers
+- Registry data on preventable health crises
+- E.g., diabetic emergencies, hypertensive crises, late-stage cancers
 - **We define the risk by age:** Young: 5%, Middle: 15%, Older: 40%
-- **Question:** What crude rate do we expect?
 :::
 
-::: {.fragment}
-<br>
+---
 
+## The Question
+
+**What crude rate do we expect?**
+
+::: {.fragment}
 **Key insight:** Depends entirely on population age structure!
 :::
 
@@ -218,8 +238,6 @@ ggplot(true_rates_sim1, aes(x = age_group, y = true_rate, fill = age_group)) +
 
 ## Computing the Expected Value
 
-Using the expectation formula:
-
 $$
 E[Y] = \sum_{\text{age}} E[Y \mid \text{Age}] \times P(\text{Age})
 $$
@@ -276,7 +294,7 @@ ggplot(comparison_sim1, aes(x = type, y = rate, fill = type)) +
 ```
 
 ::: {.fragment}
-**Key insight:** Crude rate reflects population age structure. Different population → different crude rate.
+Because we don't have confounding here, our actual rate matches our expected rate.
 :::
 
 ## What If We Had a Different Population?
@@ -285,32 +303,43 @@ ggplot(comparison_sim1, aes(x = type, y = rate, fill = type)) +
 - Imagine Population A: Mostly young people → low crude rate
 - Imagine Population B: Mostly older people → high crude rate
 - **Same age-specific rates** (5%, 15%, 40%)
-- **Different crude rates** because $\text{Age}$ differs
+- **Different crude rates** because populations differ
 :::
 
-::: {.fragment}
-<br>
+---
 
-**This is why standardization matters!**
+## Why Standardization Matters
 
-To compare Population A vs B fairly, we need to apply their age-specific rates to a **standard population** and use the **same age weights** for both
+To compare populations fairly, we need:
+
+::: {.incremental}
+- Apply age-specific rates to a **standard population**
+- Use the **same age weights** for both groups
+- Remove the effect of different population structures
 :::
 
-# Example 2: Age + Sex {.section-break background-color="#2C3E50"}
+# Example 2: Age + Gender {.section-break background-color="#2C3E50"}
 
 ## Adding Gender: Simpson's Paradox
 
 **Research question:** Do men or women have higher late-presentation rates?
 
+---
+
+## What We Know
+
 ::: {.incremental}
-- Now we have Sex and Age in our data
+- Now we have Gender and Age in our data
 - **Known truth** (from simulation):
-  - Men have higher risk within **every** age group (by a few percentage points)
+  - Men have higher risk within **every** age group
   - Women live longer → more older women
-- What will crude rates show?
 :::
 
-## Causal Structure: Age + Sex → Outcome
+::: {.fragment}
+**Question:** What will crude rates show?
+:::
+
+## Causal Structure: Age + Gender → Outcome
 
 ```{r}
 #| label: dag2
@@ -319,28 +348,28 @@ To compare Population A vs B fairly, we need to apply their age-specific rates t
 #| fig-height: 4
 
 dag2 <- dagify(
-  Out ~ Age + Sex,
-  Age ~ Sex,
+  Out ~ Age + Gender,
+  Age ~ Gender,
   coords = list(
-    x = c(Sex = 1, Age = 2, Out = 3),
-    y = c(Sex = 2, Age = 1, Out = 2)
+    x = c(Gender = 1, Age = 2, Out = 3),
+    y = c(Gender = 2, Age = 1, Out = 2)
   )
 )
 
 ggdag(dag2, text_size = 5, node_size = 20) +
   theme_dag() +
-  labs(title = "Causal Structure: Sex → Age → Outcome, Sex → Outcome")
+  labs(title = "Causal Structure: Gender → Age → Outcome, Gender → Outcome")
 ```
 
 ::: {.fragment}
 **This is confounding!**
 
-Sex affects Age (women live longer), and Age affects Outcome.
+Gender affects Age (women live longer), and Age affects Outcome.
 
 Crude comparison of men vs women is **biased** by age composition.
 :::
 
-## Simulated Dataset 2: Age Structure by Sex
+## Simulated Dataset 2: Age Structure by Gender
 
 ```{r}
 #| label: age-by-sex-sim2
@@ -358,20 +387,20 @@ sim2_data %>%
   scale_y_continuous(labels = percent_format(), limits = c(0, 0.6)) +
   scale_fill_manual(values = c("#3498DB", "#E74C3C")) +
   labs(
-    title = "Age Distribution by Sex (Dataset 2)",
+    title = "Age Distribution by Gender (Dataset 2)",
     subtitle = "Women concentrated in older ages; men in younger ages",
     x = "Age Group",
     y = "Proportion",
-    fill = "Sex"
+    fill = "Gender"
   ) +
   theme(legend.position = "top")
 ```
 
 ::: {.fragment}
-**Key:** P(Age | Man) ≠ P(Age | Woman), but **marginal P(Age) same as Dataset 1**
+**Key:** P(Age | Man) ≠ P(Age | Woman), but **marginal (overall) P(Age) same as Dataset 1**
 :::
 
-## Crude Rates by Sex
+## Crude Rates by Gender
 
 ```{r}
 #| label: crude-sex-sim2
@@ -388,7 +417,7 @@ ggplot(crude_sex, aes(x = sex, y = crude_rate, fill = sex)) +
   scale_y_continuous(labels = percent_format(), limits = c(0, 0.30)) +
   scale_fill_manual(values = c("#3498DB", "#E74C3C")) +
   labs(
-    title = "Crude Late-Presentation Rates by Sex",
+    title = "Crude Late-Presentation Rates by Gender",
     subtitle = "Women appear worse overall...",
     x = NULL,
     y = "Late Presentation Rate"
@@ -402,7 +431,7 @@ ggplot(crude_sex, aes(x = sex, y = crude_rate, fill = sex)) +
 **But is this the truth?**
 :::
 
-## Age-Specific Rates by Sex
+## Age-Specific Rates by Gender
 
 ```{r}
 #| label: age-specific-sex-sim2
@@ -438,13 +467,14 @@ ggplot(age_sex_rates_plot, aes(x = age_group, y = rate,
   geom_text(aes(label = percent(rate, accuracy = 0.1)),
             vjust = -1, size = 4) +
   scale_y_continuous(labels = percent_format(), limits = c(0, 0.50)) +
-  scale_color_manual(values = c("#3498DB", "#E74C3C")) +
+  scale_color_manual(values = c("#3498DB", "#E74C3C"),
+                     labels = c("Men", "Women")) +
   labs(
     title = "Within Each Age Group, Men Have Higher Rates",
     subtitle = "Simpson's Paradox: Composition flips the overall pattern",
     x = "Age Group",
     y = "Late Presentation Rate",
-    color = "Sex"
+    color = "Gender"
   ) +
   theme(legend.position = "top")
 ```
@@ -454,21 +484,67 @@ ggplot(age_sex_rates_plot, aes(x = age_group, y = rate,
 Remember the expectation formula:
 
 $$
-E[Y \mid \text{Sex}] = \sum_{\text{age}} E[Y \mid \text{Sex}, \text{Age}] \times P(\text{Age} \mid \text{Sex})
+E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] \times P(\text{Age} \mid \text{Gender})
 $$
 
-::: {.fragment}
+---
 
-- $P(\text{Age} \mid \text{Man})$ is different from $P(\text{Age} \mid \text{Woman})$
-- Women have more weight on **older ages** (where everyone has high rates)
-- Men have more weight on **younger ages** (where everyone has low rates)
-- Men have higher risk within every age group
-- **Different age weights** flip the crude pattern despite consistent within-age differences
+## The Problem
+
+::: {.incremental}
+- $P(\text{Age} \mid \text{Man})$ ≠ $P(\text{Age} \mid \text{Woman})$
+- Women concentrated in **older ages** (high risk)
+- Men concentrated in **younger ages** (low risk)
 :::
 
-## Indirect Standardization
+---
 
-**Goal:** What would the **expected number of events** be if each group had standard rates?
+## Why It Flips
+
+::: {.incremental}
+- Men have higher risk within **every** age group
+- But **different age weights** flip the crude pattern
+- This is confounding in action
+:::
+
+## Indirect Standardization: The Goal
+
+**Estimate what each group's outcomes *should look like***
+if they experienced the **same rates as a reference population**
+
+---
+
+## The Method
+
+::: {.incremental}
+- Start with **known rates** from a large or "standard" population (for example, national age-specific rates)
+- Apply those rates to your **study population's structure** (how many people you have in each age group)
+- This gives you the **expected number of events** *if your group had the same risks as the reference group*
+:::
+
+---
+
+## Interpreting the Results
+
+::: {.incremental}
+- Compare **observed vs expected** events → this ratio is the **Standardized Mortality (or Morbidity) Ratio (SMR)**
+- SMR = 1 → outcomes match the reference population
+- SMR > 1 → more events than expected
+- SMR < 1 → fewer events than expected
+:::
+
+---
+
+## Why "Indirect"?
+
+We don't re-calculate each group's own rates
+
+::: {.incremental}
+- We *borrow* the standard rates and apply them to our data
+- Then compare what we **saw** to what we **would expect**
+:::
+
+## Some Code To Calculate Things
 
 ```{r}
 #| label: indirect-std-sim2
@@ -491,9 +567,18 @@ indirect_std <- sim2_data %>%
     expected = sum(n * std_rate),
     SMR = observed / expected
   )
+```
+
+## The Results
+
+```{r}
+#| label: show-indirect-std
+#| echo: true
 
 indirect_std
 ```
+
+---
 
 ## SMR: Standardized Morbidity Ratio
 
@@ -518,10 +603,10 @@ ggplot(indirect_std, aes(x = sex, y = SMR, fill = sex)) +
 ```
 
 ::: {.fragment}
-**Interpretation:** Men have `r sprintf("%.0f%%", (indirect_std$SMR[indirect_std$sex == "Man"] - 1) * 100)` higher risk than expected from standard rates
+**Interpretation:** Men have `r sprintf("%.0f%%", (indirect_std$SMR[indirect_std$sex == "Men"] - 1) * 100)` higher risk than expected from standard rates
 :::
 
-## Direct Standardization: The Fix
+## Direct Standardization
 
 **Goal:** What would rates be if men and women had the **same** age distribution?
 
@@ -578,31 +663,37 @@ ggplot(comparison_sim2, aes(x = sex, y = rate, fill = type)) +
 ## Key Insight: Confounding
 
 ::: {.incremental}
-- **Crude rates get it wrong** because Sex → Age and Age → Outcome
-- **Age is a confounder** of the Sex-Outcome relationship
+- **Crude rates get it wrong** because Gender → Age and Age → Outcome
+- **Age is a confounder** of the Gender-Outcome relationship
 - **Direct standardization** fixes $P(\text{Age})$ to break the confounding
-- **Result:** Correct comparison of sex differences
 :::
 
-::: {.fragment}
-<br>
+---
 
+## The Result
+
+Direct standardization gives us the **correct comparison of gender differences**
+
+::: {.fragment}
 **Next:** What happens when we have multiple confounders?
 :::
 
-# Example 3: Age + Sex + GOC {.section-break background-color="#2C3E50"}
+# Example 3: Age + Gender + GOC {.section-break background-color="#2C3E50"}
 
-## Adding Gender Opportunity Context: Multiple Confounders
+## Adding Gender Opportunity Context
 
 **Research question:** Same question, but now we also have GOC data
 
 GOC = Gender Opportunity Context (gendered norms/power/access)
 
+---
+
+## Known Truth from Simulation
+
 ::: {.incremental}
-- **Known truth** (from simulation):
-  - Age effect: Young=5%, Middle=15%, Older=40%
-  - Sex effect: Men higher within age groups (constant logit-scale effect)
-  - GOC effect: Low/Mid higher than High (constant logit-scale effects)
+- Age effect: Young=5%, Middle=15%, Older=40%
+- Gender effect: Men higher within age groups (constant logit-scale effect)
+- GOC effect: Low/Mid higher than High (constant logit-scale effects)
 :::
 
 ---
@@ -612,16 +703,16 @@ GOC = Gender Opportunity Context (gendered norms/power/access)
 ::: {.incremental}
 - GOC → Age (low GOC = younger; more constraints/shorter healthy lifespan)
 - GOC → Outcome (low GOC = higher risk; barriers to access/norms)
-- Sex → Age (women live longer)
+- Gender → Age (women live longer)
 - Age → Outcome
-- Sex → Outcome
+- Gender → Outcome
 :::
 
-::: {.fragment}
-<br>
+---
 
-**The complexity:** All three variables affect both each other AND the outcome
-:::
+## The Complexity
+
+**All three variables affect both each other AND the outcome**
 
 ## Causal Structure: Multiple Confounders
 
@@ -632,11 +723,11 @@ GOC = Gender Opportunity Context (gendered norms/power/access)
 #| fig-height: 5
 
 dag3 <- dagify(
-  Outcome ~ Age + Sex + GOC,
-  Age ~ Sex + GOC,
+  Out ~ Age + Gender + GOC,
+  Age ~ Gender + GOC,
   coords = list(
-    x = c(GOC = 1, Sex = 1, Age = 2, Outcome = 3),
-    y = c(GOC = 1, Sex = 3, Age = 2, Outcome = 2)
+    x = c(GOC = 1, Gender = 1, Age = 2, Out = 3),
+    y = c(GOC = 1, Gender = 3, Age = 2, Out = 2)
   )
 )
 
@@ -653,7 +744,7 @@ To compare groups fairly, we need to adjust for Age AND GOC.
 Manual standardization becomes unmanageable.
 :::
 
-## Simulated Dataset 3: Age by Sex and GOC
+## Simulated Dataset 3: Age by Gender and GOC
 
 ```{r}
 #| label: age-by-sex-goc-sim3
@@ -672,8 +763,8 @@ sim3_data %>%
   scale_y_continuous(labels = percent_format()) +
   scale_fill_manual(values = c("#3498DB", "#E67E22", "#E74C3C")) +
   labs(
-    title = "Age Distribution by Sex and GOC (Dataset 3)",
-    subtitle = "Complex patterns: P(Age | Sex, GOC) varies, but marginal (i.e., overall) P(Age) same as D1/D2",
+    title = "Age Distribution by Gender and GOC (Dataset 3)",
+    subtitle = "Complex patterns: P(Age | Gender, GOC) varies, but marginal (i.e., overall) P(Age) same as D1/D2",
     x = "Age Group",
     y = "Proportion",
     fill = "Age"
@@ -681,16 +772,25 @@ sim3_data %>%
   theme(legend.position = "bottom")
 ```
 
-## Crude Rates: Confounded
+## Crude Rates by Gender
 
 ```{r}
-#| label: crude-all-sim3
+#| label: crude-sex-sim3
 #| echo: true
 
-# By Sex
+# By Gender
 sim3_data %>%
   group_by(sex) %>%
   summarise(crude_rate = mean(late_presentation))
+```
+
+---
+
+## Crude Rates by GOC
+
+```{r}
+#| label: crude-goc-sim3
+#| echo: true
 
 # By GOC
 sim3_data %>%
@@ -700,7 +800,7 @@ sim3_data %>%
 
 ::: {.fragment}
 **All confounded!**
-Low GOC appears to have lower risk (wrong!) because low GOC contexts are younger.
+Low GOC appears to have every so slightly lower risk (wrong!) because low GOC contexts are younger.
 :::
 
 ## Why Manual Standardization Fails
@@ -708,17 +808,16 @@ Low GOC appears to have lower risk (wrong!) because low GOC contexts are younger
 To standardize by Age and GOC:
 
 ::: {.incremental}
-- Need age-GOC-specific rates for each sex: 3 ages × 3 GOC = **9 strata per sex**
+- Need age-GOC-specific rates for each gender: 3 ages × 3 GOC = **9 strata per gender**
 - With small cell counts, rates become unstable
 - Adding more confounders (ethnicity, region, comorbidity) → exponential growth
-- **Becomes unmanageable quickly**
 :::
 
-::: {.fragment}
-<br>
+---
 
-**Solution:** Regression models do multivariable standardization automatically
-:::
+## The Solution
+
+**Regression models do multivariable standardization automatically**
 
 ## Poisson Regression
 
@@ -731,8 +830,23 @@ glm_fit <- glm(late_presentation ~ sex + age_group + goc,
                data = sim3_data)
 ```
 
+---
+
+## What the Model Does
+
+Fits a model:
+$$
+\begin{aligned}
+\log(E[Y \mid \text{Gender}, \text{Age}, \text{GOC}]) = \\
+\beta_0 + \beta_{\text{Gender}} + \beta_{\text{Age}} + \beta_{\text{GOC}}
+\end{aligned}
+$$
+
+---
+
+## Why This Works
+
 ::: {.incremental}
-- Fits a model: $\log(E[Y \mid \text{Sex}, \text{Age}, \text{GOC}]) = \beta_0 + \beta_{\text{Sex}} + \beta_{\text{Age}} + \beta_{\text{GOC}}$
 - Automatically adjusts for all confounders simultaneously
 - **This is standardization!** Model weights by the data's covariate distribution
 :::
@@ -749,6 +863,15 @@ library(emmeans)
 
 # Get marginal probabilities by sex (adjusted for age and GOC)
 emmeans(glm_fit, ~ sex, type = "response")
+```
+
+---
+
+## Gender Probability Differences
+
+```{r}
+#| label: emmeans-sim3-pairs
+#| echo: true
 
 # Probability difference
 pairs(regrid(emmeans(glm_fit, ~ sex, type = "response")), reverse = TRUE)
@@ -782,57 +905,55 @@ emmeans(glm_fit, ~ goc, type = "response")
 pairs(regrid(emmeans(glm_fit, ~ goc, type = "response")), reverse = TRUE)
 ```
 
-::: {.fragment}
-**Low GOC contexts have 4.7 pp higher risk than High GOC** (adjusted for age/sex)
-
-**Mid GOC contexts have 1.7 pp higher risk than High GOC** (adjusted for age/sex)
-:::
-
 ---
 
-## What the Model Does
+## Interpretation
 
 ::: {.incremental}
-- Model fits on log scale: $\log(E[Y \mid \text{Sex}, \text{Age}, \text{GOC}]) = \beta_0 + \beta_{\text{Sex}} + \beta_{\text{Age}} + \beta_{\text{GOC}}$
-- `emmeans` converts those to **predicted probabilities** we can interpret
-- Then calculates **probability differences** between groups
-- Equivalent to standardizing by Age and GOC simultaneously
-- **Much more manageable** than 9 strata of manual standardization
+- **Low GOC contexts have 4.7 pp higher risk than High GOC** (adjusted for age/sex)
+- **Mid GOC contexts have 1.7 pp higher risk than High GOC** (adjusted for age/sex)
 :::
+
+
+## Model-based Approaches
+
+Modeling lets us extend the logic of standardization to more complex causal structures gracefully
 
 # Summary {.section-break background-color="#2C3E50"}
 
-## The Story
+## Recap
 
 1. **Example 1 (Age only):** Crude rate depends on population structure
-2. **Example 2 (Age + Sex):** Confounding creates Simpson's Paradox; direct standardization fixes it
-3. **Example 3 (Age + Sex + GOC):** Multiple confounders: regression models generalize standardization
+2. **Example 2 (Age + Gender):** Confounding creates Simpson's Paradox; direct standardization fixes it
+3. **Example 3 (Age + Gender + GOC):** Multiple confounders: regression models generalize standardization
 
 ## All Methods Compared
 
+::: {style="font-size: 0.75em;"}
 ```{r}
 #| label: summary-table
 #| echo: false
 
 summary_comparison <- tribble(
-  ~Method, ~`Example 2 (Sex)`, ~`Example 3 (GOC + Sex)`,
+  ~Method, ~`Example 2 (Gender)`, ~`Example 3 (GOC + Gender)`,
 
   "Crude",
-  "Women appear worse",
-  "Low GOC appears better (wrong!)",
+  "Women appear worse (incorrect)",
+  "Low GOC appears better (incorrect)",
 
   "Direct Standardization",
   "Men worse (correct)",
   "Too many strata (unmanageable)",
 
   "Poisson GLM",
-  "Men worse (RR ≈ 1.06)",
+  "Men worse (correct)",
   "Men worse, Low GOC worse (correct)"
 )
 
 summary_comparison %>%
   kable(caption = "Getting the Expected Value Right Requires Understanding Causal Structure")
 ```
+:::
 
 ## Key Takeaways
 
@@ -849,16 +970,23 @@ summary_comparison %>%
 If we **only** looked at crude rates:
 
 ::: {.incremental}
-- **Example 2:** Crude data: women seem worse. Truth: men higher risk  
+- **Example 2:** Crude data: women seem worse. Truth: men higher risk
 - **Example 3:** Crude data: low-opportunity contexts seem safer. Truth: risk highest where gender equality is lowest
+:::
+
+---
+
+## The Consequences
+
+::: {.incremental}
 - **Wrong interventions:** Misallocated resources, ineffective programs
 - **Root cause:** Ignored causal structure and population composition
 :::
 
 ::: {.fragment}
+<br>
 
 **Gendered health analysis requires understanding confounding, causal structure, and standardization**
-
 :::
 
 ## Summary

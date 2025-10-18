@@ -13,6 +13,8 @@
 # - Same P(Age | Sex) and P(Age | Sex, GOC) distributions
 # - Population structure visualizations show the SAME data
 
+library(dplyr)
+
 set.seed(1234)
 
 n <- 20000
@@ -32,7 +34,7 @@ age_group <- rep(age_levels, c(n_young, n_middle, n_older))
 age_group <- sample(age_group)
 
 # Sex (balanced)
-sex <- sample(c("Man", "Woman"), n, replace = TRUE)
+sex <- sample(c("Men", "Women"), n, replace = TRUE)
 
 # Gender Opportunity Context conditional on age
 # This creates confounding: Age → GOC, GOC will appear related to outcomes
@@ -57,11 +59,11 @@ temp_df <- temp_df %>%
   group_by(age_group) %>%
   mutate(
     sex = if (age_group[1] == "Older") {
-      # More women in older age
-      ifelse(row_number() <= n() * 0.55, "Woman", "Man")
+      # Much more women in older age (60% women)
+      ifelse(row_number() <= n() * 0.60, "Women", "Men")
     } else if (age_group[1] == "Young") {
-      # More men in younger age
-      ifelse(row_number() <= n() * 0.45, "Woman", "Man")
+      # Much more men in younger age (60% men, 40% women)
+      ifelse(row_number() <= n() * 0.40, "Women", "Men")
     } else {
       sex  # Keep middle balanced
     }
@@ -75,7 +77,7 @@ goc <- temp_df$goc
 # Create base population dataframe
 base_population <- data.frame(
   id = 1:n,
-  sex = factor(sex, levels = c("Man", "Woman")),
+  sex = factor(sex, levels = c("Men", "Women")),
   age_group = factor(age_group, levels = age_levels),
   goc = factor(goc, levels = c("Low", "Mid", "High"))
 )

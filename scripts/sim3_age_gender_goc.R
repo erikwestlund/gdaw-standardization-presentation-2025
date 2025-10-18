@@ -14,10 +14,13 @@
 #
 # REQUIRES: base_population (from 00_base_population.R)
 
+library(dplyr)
+library(tidyr)
+
 # Helper function
 inv_logit <- function(z) 1/(1+exp(-z))
 
-# Baseline logits for Woman, High GOC reference group
+# Baseline logits for Women, High GOC reference group
 # Target: Young ~5%, Middle ~15%, Older ~40%
 logit_base <- c(
   Young = qlogis(0.05),
@@ -26,7 +29,7 @@ logit_base <- c(
 )
 
 # Effects: constant on logit scale
-# Man: ~+3pp at low baseline
+# Men: ~+3pp at low baseline
 # GOC Mid: ~+2pp at low baseline
 # GOC Low: ~+4pp at low baseline
 logit_male <- 0.25
@@ -35,7 +38,7 @@ logit_goc_low <- 0.35
 
 # Build linear predictor per person
 lp <- logit_base[as.character(base_population$age_group)] +
-      ifelse(base_population$sex == "Man", logit_male, 0) +
+      ifelse(base_population$sex == "Men", logit_male, 0) +
       ifelse(base_population$goc == "Mid",  logit_goc_mid, 0) +
       ifelse(base_population$goc == "Low",  logit_goc_low, 0)
 
@@ -91,12 +94,12 @@ cat("Need regression (Poisson/Cox) to handle multiple confounders.\n")
 # Sanity checks
 cat("\n=== Sanity Checks ===\n")
 
-cat("\n1) Within-age comparison (Man vs Woman):\n")
+cat("\n1) Within-age comparison (Men vs Women):\n")
 age_sex_check <- sim3_data %>%
   group_by(age_group, sex) %>%
   summarise(rate = mean(late_presentation), .groups = "drop") %>%
   pivot_wider(names_from = sex, values_from = rate) %>%
-  mutate(diff = Man - Woman)
+  mutate(diff = Men - Women)
 print(age_sex_check)
 cat("(All diffs should be positive: Men > Women within each age)\n")
 
