@@ -30,13 +30,11 @@ execute:
 library(framework)
 scaffold()
 
-# Source base population FIRST (creates base_population object)
-source("scripts/00_base_population.R")
-
-# Source all three simulations (each uses base_population)
-source("scripts/sim1_age_only.R")
-source("scripts/sim2_age_gender.R")
-source("scripts/sim3_age_gender_goc.R")
+# Load simulation datasets from Framework data catalog
+base_population <- data_load("base_population")
+sim1_data <- data_load("sim1_data")
+sim2_data <- data_load("sim2_data")
+sim3_data <- data_load("sim3_data")
 
 # Set theme for plots
 theme_set(theme_minimal(base_size = 14))

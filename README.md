@@ -12,25 +12,11 @@ A presentation on standardization methods for gender equity analysis, recorded f
 
 ```
 .
-├── data/               # Presentation data
-├── functions/          # Custom R functions
-├── presentation.qmd    # Main presentation file
-├── config.yml          # Project configuration
-└── scaffold.R          # Initialization script
+├── data/                                      # Simulated presentation data
+├── scripts/                                   # Scripts to generate simulated data
+├── config.yml                                 # Project configuration
+├── presentation.qmd                           # Main presentation file
+├── presentation.html                          # Rendered presentation file
+├── gdaw-naivasha-westlund-presentation.pdf    # PDF
 ```
 
-## Quick Start
-
-```r
-library(framework)
-scaffold()              # Load environment
-```
-
-## Configuration
-
-Edit `config.yml` to customize:
-- Data sources
-- Required packages
-- Directory paths
-
-Cache directory (`data/cached/`) is created automatically on first use.

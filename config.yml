@@ -48,14 +48,37 @@ default:
   # Data Catalog
   # --------------------------------------------------------------------------
   # Simple inline for most presentations
-  # Large catalogs: use split file (data: settings/data.yml)
-  # ⚠️ Main config ALWAYS wins over split files
+  #
+  # Fields:
+  #   - path: File path relative to project root
+  #   - type: csv, rds, xlsx, etc.
+  #   - locked: true prevents accidental modification
+  #   - description: Displayed when data is loaded with data_load()
   # --------------------------------------------------------------------------
   data:
-    # Uncomment to use example data:
-    # example:
-    #   path: data/example.csv
-    #   type: csv
+    base_population:
+      path: data/base_population.csv
+      type: csv
+      locked: true
+      description: "Base population with Age, Gender, and GOC structure used across all examples"
+
+    sim1_data:
+      path: data/sim1_data.csv
+      type: csv
+      locked: true
+      description: "Simulation 1: Age → Outcome only (no confounding)"
+
+    sim2_data:
+      path: data/sim2_data.csv
+      type: csv
+      locked: true
+      description: "Simulation 2: Age + Gender → Outcome (Simpson's Paradox)"
+
+    sim3_data:
+      path: data/sim3_data.csv
+      type: csv
+      locked: true
+      description: "Simulation 3: Age + Gender + GOC → Outcome (multiple confounding)"
 
   # --------------------------------------------------------------------------
   # Database Connections
