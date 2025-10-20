@@ -69,3 +69,6 @@ renv/staging/
 .history
 .aws
 .config
+
+# AI 
+.claude/settings.local.json
