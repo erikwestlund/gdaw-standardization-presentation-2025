@@ -177,7 +177,7 @@ ggplot(tidy_dag1, aes(x = x, y = y, xend = xend, yend = yend)) +
   geom_segment(arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
                linewidth = 1, color = "gray50") +
   geom_point(size = 14, color = "steelblue") +
-  geom_text(aes(label = name), size = 4, color = "white", fontface = "bold") +
+  geom_text(aes(label = name), size = 6, color = "white", fontface = "bold") +
   theme_void() +
   labs(title = "Causal Structure: Age Determines Outcome") +
   theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
@@ -348,8 +348,8 @@ To compare populations fairly, we need:
 ```{r}
 #| label: dag2
 #| echo: false
-#| fig-width: 12
-#| fig-height: 7
+#| fig-width: 8
+#| fig-height: 4
 
 dag2 <- dagify(
   Out ~ Age + Gender,
@@ -363,23 +363,22 @@ dag2 <- dagify(
 tidy_dag2 <- tidy_dagitty(dag2)
 
 ggplot(tidy_dag2, aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_segment(arrow = arrow(length = unit(0.4, "cm"), type = "closed"),
-               linewidth = 1.5, color = "gray50") +
-  geom_point(size = 20, color = "steelblue") +
-  geom_text(aes(label = name), size = 5, color = "white", fontface = "bold") +
+  geom_segment(arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
+               linewidth = 1, color = "gray50") +
+  geom_point(size = 14, color = "steelblue") +
+  geom_text(aes(label = name), size = 6, color = "white", fontface = "bold") +
   theme_void() +
   labs(title = "Causal Structure: Gender → Age → Outcome, Gender → Outcome") +
-  theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"))
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
 ```
 
-## Confounding By Age
-
+::: fragment
 **This is confounding!**
 
 Gender affects Age (women live longer), and Age affects Outcome.
 
 Crude comparison of men vs women is **biased** by age composition.
-
+:::
 
 ## Simulated Dataset 2: Age Structure by Gender
 
@@ -775,20 +774,9 @@ dag3 <- dagify(
   )
 )
 
-
-tidy_dag3 <- tidy_dagitty(dag3)
-
-ggplot(tidy_dag3, aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_segment(arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
-               linewidth = 1, color = "gray50") +
-  geom_point(size = 14, color = "steelblue") +
-  geom_text(aes(label = name), size = 4, color = "white", fontface = "bold") +
-  theme_void() +
-  labs(title = "Gender Opportunity Context introduces multiple pathways") +
-  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
-
-
-
+ggdag_classic(dag3) +
+  theme_dag() +
+  labs(title = "Gender Opportunity Context introduces multiple pathways")
 ```
 
 ::: fragment
