@@ -39,6 +39,20 @@ sim1_data <- data_load("sim1_data")
 sim2_data <- data_load("sim2_data")
 sim3_data <- data_load("sim3_data")
 
+# ENFORCE FACTOR ORDERING FOR ALL DATASETS
+# Age group: Young -> Middle -> Older
+sim1_data <- sim1_data |>
+  mutate(age_group = factor(age_group, levels = c("Young", "Middle", "Older")))
+
+sim2_data <- sim2_data |>
+  mutate(age_group = factor(age_group, levels = c("Young", "Middle", "Older")))
+
+sim3_data <- sim3_data |>
+  mutate(
+    age_group = factor(age_group, levels = c("Young", "Middle", "Older")),
+    goc = factor(goc, levels = c("Low", "Mid", "High"))
+  )
+
 # Set theme for plots
 theme_set(theme_minimal(base_size = 14))
 ```
