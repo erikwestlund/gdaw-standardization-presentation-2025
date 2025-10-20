@@ -27,8 +27,8 @@ late_presentation <- rbinom(nrow(base_population), 1, rate)
 
 # Create sim1 dataset - just Age and outcome
 # (ignoring Sex and GOC for this example)
-sim1_data <- base_population %>%
-  select(id, age_group) %>%
+sim1_data <- base_population |>
+  select(id, age_group) |>
   mutate(late_presentation = late_presentation)
 
 # Print summary

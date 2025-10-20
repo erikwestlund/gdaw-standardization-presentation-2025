@@ -191,9 +191,9 @@ But crude rate still depends on age.
 #| label: age-dist-sim1
 #| echo: false
 
-sim1_data %>%
-  count(age_group) %>%
-  mutate(prop = n / sum(n)) %>%
+sim1_data |>
+  count(age_group) |>
+  mutate(prop = n / sum(n)) |>
   ggplot(aes(x = age_group, y = prop, fill = age_group)) +
   geom_col(width = 0.6) +
   geom_text(aes(label = percent(prop, accuracy = 1)),
@@ -209,7 +209,7 @@ sim1_data %>%
   theme(legend.position = "none")
 ```
 
-## True Age-Specific Rates (Known)
+## Age-Specific Rates Of Late Presentation
 
 ```{r}
 #| label: true-rates-sim1
@@ -228,8 +228,8 @@ ggplot(true_rates_sim1, aes(x = age_group, y = true_rate, fill = age_group)) +
   scale_y_continuous(labels = percent_format(), limits = c(0, 0.45)) +
   scale_fill_manual(values = c("#3498DB", "#E67E22", "#E74C3C")) +
   labs(
-    title = "True Age-Specific Rates (We set it)",
-    subtitle = "These are the 'truth' we're trying to understand",
+    title = "Late Presentation Age-Specific Rates",
+    subtitle = "We set these from simulated data, so we know the truth/unbiased rates",
     x = "Age Group",
     y = "Late Presentation Rate"
   ) +
@@ -375,10 +375,10 @@ Crude comparison of men vs women is **biased** by age composition.
 #| label: age-by-sex-sim2
 #| echo: false
 
-sim2_data %>%
-  count(sex, age_group) %>%
-  group_by(sex) %>%
-  mutate(prop = n / sum(n)) %>%
+sim2_data |>
+  count(sex, age_group) |>
+  group_by(sex) |>
+  mutate(prop = n / sum(n)) |>
   ggplot(aes(x = age_group, y = prop, fill = sex)) +
   geom_col(position = "dodge") +
   geom_text(aes(label = percent(prop, accuracy = 1)),
@@ -406,8 +406,8 @@ sim2_data %>%
 #| label: crude-sex-sim2
 #| echo: false
 
-crude_sex <- sim2_data %>%
-  group_by(sex) %>%
+crude_sex <- sim2_data |>
+  group_by(sex) |>
   summarise(crude_rate = mean(late_presentation))
 
 ggplot(crude_sex, aes(x = sex, y = crude_rate, fill = sex)) +
@@ -437,8 +437,8 @@ ggplot(crude_sex, aes(x = sex, y = crude_rate, fill = sex)) +
 #| label: age-specific-sex-sim2
 #| echo: true
 
-age_sex_rates <- sim2_data %>%
-  group_by(sex, age_group) %>%
+age_sex_rates <- sim2_data |>
+  group_by(sex, age_group) |>
   summarise(rate = mean(late_presentation), .groups = "drop")
 
 age_sex_rates
@@ -457,7 +457,7 @@ This is **Simpson's Paradox**.
 #| echo: false
 
 # Ensure age_group is an ordered factor for line plotting
-age_sex_rates_plot <- age_sex_rates %>%
+age_sex_rates_plot <- age_sex_rates |>
   mutate(age_group = factor(age_group, levels = c("Young", "Middle", "Older"), ordered = TRUE))
 
 ggplot(age_sex_rates_plot, aes(x = age_group, y = rate,
@@ -544,27 +544,46 @@ We don't re-calculate each group's own rates
 - Then compare what we **saw** to what we **would expect**
 :::
 
-## Some Code To Calculate Things
+## Step 1: Define Our "Ingredients"
 
 ```{r}
-#| label: indirect-std-sim2
+#| label: indirect-std-sim2-setup
 #| echo: true
 
-# Step 1: Use overall population rates as standard
-standard_rates <- sim2_data %>%
-  group_by(age_group) %>%
-  summarise(std_rate = mean(late_presentation))
+# Calculate observed rates in our data
+age_sex_rates <- sim2_data |>
+  group_by(sex, age_group) |>
+  summarise(rate = mean(late_presentation), .groups = "drop")
 
-# Step 2: Calculate expected events for each sex using standard rates
-indirect_std <- sim2_data %>%
-  group_by(sex, age_group) %>%
-  summarise(n = n(), .groups = "drop") %>%
-  left_join(standard_rates, by = "age_group") %>%
-  group_by(sex) %>%
+# Define standard rates (e.g., from national statistics)
+standard_rates <- data.frame(
+  age_group = factor(c("Young", "Middle", "Older"),
+                    levels = c("Young", "Middle", "Older")),
+  std_rate = c(0.04, 0.14, 0.42)  # Externally-determined rates; they differ a little
+)
+
+# Get population counts by sex and age
+pop_counts <- sim2_data |>
+  group_by(sex, age_group) |>
+  summarise(n = n(), .groups = "drop")
+```
+
+---
+
+## Step 2: Calculate SMR for Each Group
+
+```{r}
+#| label: indirect-std-sim2-calc
+#| echo: true
+
+# For each sex, calculate observed and expected events
+indirect_std <- pop_counts |>
+  left_join(standard_rates, by = "age_group") |>  # Merge in our rates
+  left_join(age_sex_rates, by = c("sex", "age_group")) |>
+  group_by(sex) |>
   summarise(
-    observed = sum(n * age_sex_rates$rate[match(paste(sex, age_group),
-                                                  paste(age_sex_rates$sex, age_sex_rates$age_group))]),
-    expected = sum(n * std_rate),
+    observed = sum(n * rate),        # Actual events in our data
+    expected = sum(n * std_rate),    # Expected if standard rates applied
     SMR = observed / expected
   )
 ```
@@ -606,23 +625,37 @@ ggplot(indirect_std, aes(x = sex, y = SMR, fill = sex)) +
 **Interpretation:** Men have `r sprintf("%.0f%%", (indirect_std$SMR[indirect_std$sex == "Men"] - 1) * 100)` higher risk than expected from standard rates
 :::
 
-## Direct Standardization
+## Direct Standardization: The Goal
 
-**Goal:** What would rates be if men and women had the **same** age distribution?
+**What would rates be if men and women had the same age distribution?**
 
 ```{r}
-#| label: direct-std-sim2
+#| label: direct-std-sim2-setup
 #| echo: true
 
-# Step 1: Use marginal P(Age) as standard weights
-std_weights <- sim2_data %>%
-  count(age_group) %>%
-  mutate(weight = n / sum(n))
+# Calculate observed rates in our data
+age_sex_rates <- sim2_data |>
+  group_by(sex, age_group) |>
+  summarise(rate = mean(late_presentation), .groups = "drop")
 
-# Step 2: Apply to sex-age specific rates
-direct_std <- age_sex_rates %>%
-  left_join(std_weights, by = "age_group") %>%
-  group_by(sex) %>%
+# Use marginal P(Age) as standard weights
+std_weights <- sim2_data |>
+  count(age_group) |>
+  mutate(weight = n / sum(n))
+```
+
+---
+
+## Calculate Standardized Rates
+
+```{r}
+#| label: direct-std-sim2-calc
+#| echo: true
+
+# Apply standard weights to sex-age specific rates
+direct_std <- age_sex_rates |>
+  left_join(std_weights, by = "age_group") |>
+  group_by(sex) |>
   summarise(standardized_rate = sum(rate * weight))
 
 direct_std
@@ -635,8 +668,8 @@ direct_std
 #| echo: false
 
 comparison_sim2 <- bind_rows(
-  crude_sex %>% select(sex, rate = crude_rate) %>% mutate(type = "Crude"),
-  direct_std %>% select(sex, rate = standardized_rate) %>% mutate(type = "Standardized")
+  crude_sex |> select(sex, rate = crude_rate) |> mutate(type = "Crude"),
+  direct_std |> select(sex, rate = standardized_rate) |> mutate(type = "Standardized")
 )
 
 ggplot(comparison_sim2, aes(x = sex, y = rate, fill = type)) +
@@ -751,10 +784,10 @@ Manual standardization becomes unmanageable.
 #| echo: false
 #| fig-width: 12
 
-sim3_data %>%
-  count(sex, goc, age_group) %>%
-  group_by(sex, goc) %>%
-  mutate(prop = n / sum(n)) %>%
+sim3_data |>
+  count(sex, goc, age_group) |>
+  group_by(sex, goc) |>
+  mutate(prop = n / sum(n)) |>
   ggplot(aes(x = age_group, y = prop, fill = age_group)) +
   geom_col() +
   geom_text(aes(label = percent(prop, accuracy = 1)),
@@ -779,8 +812,8 @@ sim3_data %>%
 #| echo: true
 
 # By Gender
-sim3_data %>%
-  group_by(sex) %>%
+sim3_data |>
+  group_by(sex) |>
   summarise(crude_rate = mean(late_presentation))
 ```
 
@@ -793,8 +826,8 @@ sim3_data %>%
 #| echo: true
 
 # By GOC
-sim3_data %>%
-  group_by(goc) %>%
+sim3_data |>
+  group_by(goc) |>
   summarise(crude_rate = mean(late_presentation))
 ```
 
@@ -950,7 +983,7 @@ summary_comparison <- tribble(
   "Men worse, Low GOC worse (correct)"
 )
 
-summary_comparison %>%
+summary_comparison |>
   kable(caption = "Getting the Expected Value Right Requires Understanding Causal Structure")
 ```
 :::

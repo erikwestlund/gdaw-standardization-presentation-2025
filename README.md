@@ -1,6 +1,12 @@
-# Presentation Project
+# Standardization: Understanding Confounding and Population Structure
 
-A presentation built with the Framework R package.
+A presentation on standardization methods for gender equity analysis, recorded for the GDAW-Naivasha presentation. Built with the Framework R package and Quarto.
+
+## Presentation Files
+
+- **Source**: `presentation.qmd` - Quarto presentation source file
+- **HTML**: `presentation.html` - Rendered HTML presentation
+- **PDF**: `gdaw-naivasha-westlund-presentation.pdf` - PDF version
 
 ## Project Structure
 

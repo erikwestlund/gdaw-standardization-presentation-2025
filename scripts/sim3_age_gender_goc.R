@@ -49,7 +49,7 @@ rate <- inv_logit(lp)
 late_presentation <- rbinom(nrow(base_population), 1, rate)
 
 # Create sim3 dataset - now include Sex, Age, AND GOC
-sim3_data <- base_population %>%
+sim3_data <- base_population |>
   mutate(late_presentation = late_presentation)
 
 # Print summary
@@ -66,14 +66,14 @@ print(prop.table(table(sim3_data$age_group, sim3_data$goc), margin = 2))
 crude_overall <- mean(sim3_data$late_presentation)
 cat("\nOverall crude rate:", round(crude_overall, 4), "\n")
 
-crude_by_sex <- sim3_data %>%
-  group_by(sex) %>%
+crude_by_sex <- sim3_data |>
+  group_by(sex) |>
   summarise(crude_rate = mean(late_presentation))
 cat("\nCrude rates by sex:\n")
 print(crude_by_sex)
 
-crude_by_goc <- sim3_data %>%
-  group_by(goc) %>%
+crude_by_goc <- sim3_data |>
+  group_by(goc) |>
   summarise(crude_rate = mean(late_presentation))
 cat("\nCrude rates by GOC:\n")
 print(crude_by_goc)
@@ -95,16 +95,16 @@ cat("Need regression (Poisson/Cox) to handle multiple confounders.\n")
 cat("\n=== Sanity Checks ===\n")
 
 cat("\n1) Within-age comparison (Men vs Women):\n")
-age_sex_check <- sim3_data %>%
-  group_by(age_group, sex) %>%
-  summarise(rate = mean(late_presentation), .groups = "drop") %>%
-  pivot_wider(names_from = sex, values_from = rate) %>%
+age_sex_check <- sim3_data |>
+  group_by(age_group, sex) |>
+  summarise(rate = mean(late_presentation), .groups = "drop") |>
+  pivot_wider(names_from = sex, values_from = rate) |>
   mutate(diff = Men - Women)
 print(age_sex_check)
 cat("(All diffs should be positive: Men > Women within each age)\n")
 
 cat("\n2) Crude rates by GOC (may be confounded):\n")
-goc_crude <- sim3_data %>%
-  group_by(goc) %>%
+goc_crude <- sim3_data |>
+  group_by(goc) |>
   summarise(crude = mean(late_presentation))
 print(goc_crude)

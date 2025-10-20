@@ -39,8 +39,8 @@ rate <- inv_logit(lp)
 late_presentation <- rbinom(nrow(base_population), 1, rate)
 
 # Create sim2 dataset - now include Sex
-sim2_data <- base_population %>%
-  select(id, sex, age_group) %>%
+sim2_data <- base_population |>
+  select(id, sex, age_group) |>
   mutate(late_presentation = late_presentation)
 
 # Print summary
@@ -57,15 +57,15 @@ cat("  Middle: Women ~15%, Men ~20%\n")
 cat("  Older: Women ~40%, Men ~48%\n")
 cat("  (Men higher within every age group, constant logit-scale effect)\n\n")
 
-crude_by_sex <- sim2_data %>%
-  group_by(sex) %>%
+crude_by_sex <- sim2_data |>
+  group_by(sex) |>
   summarise(crude_rate = mean(late_presentation))
 
 cat("Observed crude rates by sex:\n")
 print(crude_by_sex)
 
-age_sex_rates <- sim2_data %>%
-  group_by(sex, age_group) %>%
+age_sex_rates <- sim2_data |>
+  group_by(sex, age_group) |>
   summarise(rate = mean(late_presentation), .groups = "drop")
 
 cat("\nObserved age-sex specific rates:\n")
@@ -81,25 +81,25 @@ cat("\nDirect standardization needed to compare fairly.\n")
 cat("\n=== Sanity Checks ===\n")
 
 cat("\n1) Within-age rates (should be M > F in every stratum):\n")
-within_age <- sim2_data %>%
-  group_by(age_group, sex) %>%
+within_age <- sim2_data |>
+  group_by(age_group, sex) |>
   summarise(rate = mean(late_presentation), .groups = "drop")
 print(within_age)
 
 cat("\n2) Crude rates (ideally F > M to show paradox):\n")
-crude_check <- sim2_data %>%
-  group_by(sex) %>%
+crude_check <- sim2_data |>
+  group_by(sex) |>
   summarise(crude = mean(late_presentation))
 print(crude_check)
 
 cat("\n3) Direct-standardized by age (should flip to M > F):\n")
-std_w <- sim2_data %>%
-  count(age_group) %>%
+std_w <- sim2_data |>
+  count(age_group) |>
   mutate(w = n/sum(n))
-std_rates <- sim2_data %>%
-  group_by(sex, age_group) %>%
-  summarise(rate = mean(late_presentation), .groups = "drop") %>%
-  left_join(std_w, by = "age_group") %>%
-  group_by(sex) %>%
+std_rates <- sim2_data |>
+  group_by(sex, age_group) |>
+  summarise(rate = mean(late_presentation), .groups = "drop") |>
+  left_join(std_w, by = "age_group") |>
+  group_by(sex) |>
   summarise(std = sum(rate*w))
 print(std_rates)

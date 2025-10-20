@@ -55,8 +55,8 @@ for (i in 1:n) {
 # Adjust sex distribution within age to create Sex → Age confounding
 # Women live longer, so adjust to have more women in older ages
 temp_df <- data.frame(age_group, sex, goc)
-temp_df <- temp_df %>%
-  group_by(age_group) %>%
+temp_df <- temp_df |>
+  group_by(age_group) |>
   mutate(
     sex = if (age_group[1] == "Older") {
       # Much more women in older age (60% women)
@@ -67,7 +67,7 @@ temp_df <- temp_df %>%
     } else {
       sex  # Keep middle balanced
     }
-  ) %>%
+  ) |>
   ungroup()
 
 age_group <- temp_df$age_group
