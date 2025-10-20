@@ -30,6 +30,9 @@ execute:
 library(framework)
 scaffold()
 
+# Render DAG images (pre-render to avoid knitr bugs)
+source("scripts/render_dags.R")
+
 # Load simulation datasets from Framework data catalog
 base_population <- data_load("base_population")
 sim1_data <- data_load("sim1_data")
@@ -155,33 +158,7 @@ Crude rates can mislead us about *who* is at risk and *why*
 
 ## Causal Structure: Age → Outcome
 
-```{r}
-#| label: dag1
-#| echo: false
-#| fig-width: 6
-#| fig-height: 3
-
-library(ggdag)
-
-dag1 <- dagify(
-  Out ~ Age,
-  coords = list(
-    x = c(Age = 1, Out = 2),
-    y = c(Age = 1, Out = 1)
-  )
-)
-
-tidy_dag1 <- tidy_dagitty(dag1)
-
-ggplot(tidy_dag1, aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_segment(arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
-               linewidth = 1, color = "gray50") +
-  geom_point(size = 14, color = "steelblue") +
-  geom_text(aes(label = name), size = 4, color = "white", fontface = "bold") +
-  theme_void() +
-  labs(title = "Causal Structure: Age Determines Outcome") +
-  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
-```
+![](resources/images/dag1.png)
 
 ::: fragment
 **No confounding here**. Just one cause: Age
@@ -345,32 +322,7 @@ To compare populations fairly, we need:
 
 ## Causal Structure: Age + Gender → Outcome
 
-```{r}
-#| label: dag2
-#| echo: false
-#| fig-width: 12
-#| fig-height: 7
-
-dag2 <- dagify(
-  Out ~ Age + Gender,
-  Age ~ Gender,
-  coords = list(
-    x = c(Gender = 1, Age = 2, Out = 3),
-    y = c(Gender = 2, Age = 1, Out = 2)
-  )
-)
-
-tidy_dag2 <- tidy_dagitty(dag2)
-
-ggplot(tidy_dag2, aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_segment(arrow = arrow(length = unit(0.4, "cm"), type = "closed"),
-               linewidth = 1.5, color = "gray50") +
-  geom_point(size = 20, color = "steelblue") +
-  geom_text(aes(label = name), size = 5, color = "white", fontface = "bold") +
-  theme_void() +
-  labs(title = "Causal Structure: Gender → Age → Outcome, Gender → Outcome") +
-  theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"))
-```
+![](resources/images/dag2.png)
 
 ## Confounding By Age
 
@@ -760,36 +712,7 @@ GOC = Gender Opportunity Context (gendered norms/power/access)
 
 ## Causal Structure: Multiple Confounders
 
-```{r}
-#| label: dag3
-#| echo: false
-#| fig-width: 10
-#| fig-height: 5
-
-dag3 <- dagify(
-  Out ~ Age + Gender + GOC,
-  Age ~ Gender + GOC,
-  coords = list(
-    x = c(GOC = 1, Gender = 1, Age = 2, Out = 3),
-    y = c(GOC = 1, Gender = 3, Age = 2, Out = 2)
-  )
-)
-
-
-tidy_dag3 <- tidy_dagitty(dag3)
-
-ggplot(tidy_dag3, aes(x = x, y = y, xend = xend, yend = yend)) +
-  geom_segment(arrow = arrow(length = unit(0.3, "cm"), type = "closed"),
-               linewidth = 1, color = "gray50") +
-  geom_point(size = 14, color = "steelblue") +
-  geom_text(aes(label = name), size = 4, color = "white", fontface = "bold") +
-  theme_void() +
-  labs(title = "Gender Opportunity Context introduces multiple pathways") +
-  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"))
-
-
-
-```
+![](resources/images/dag3.png)
 
 ::: fragment
 **This is complex!**
