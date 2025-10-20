@@ -65,7 +65,7 @@ People wait to get help until a health issue becomes serious or avoidable harm h
 
 ------------------------------------------------------------------------
 
-## Why This Matters
+## Why This Happen
 
 ::: incremental
 -   Skipping routine visits or screenings until symptoms worsen
@@ -868,7 +868,7 @@ pairs(regrid(emmeans(glm_fit, ~ gender, type = "response")), reverse = TRUE)
 ```
 
 ::: fragment
-**Men have 3.2 percentage points higher risk than women** (after adjusting for age and GOC)
+**Men have 2.8 percentage points higher risk than women** (after adjusting for age and GOC)
 :::
 
 ------------------------------------------------------------------------
