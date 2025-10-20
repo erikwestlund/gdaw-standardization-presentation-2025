@@ -26,7 +26,7 @@ rate <- inv_logit(lp)
 late_presentation <- rbinom(nrow(base_population), 1, rate)
 
 # Create sim1 dataset - just Age and outcome
-# (ignoring Sex and GOC for this example)
+# (ignoring Gender and GOC for this example)
 sim1_data <- base_population |>
   select(id, age_group) |>
   mutate(late_presentation = late_presentation)
@@ -34,7 +34,7 @@ sim1_data <- base_population |>
 # Print summary
 cat("\n=== Simulation 1: Age → Late Presentation ===\n\n")
 cat("Using base_population (n=", nrow(base_population), ")\n", sep = "")
-cat("For this example, we only look at Age (ignoring Sex/GOC)\n\n")
+cat("For this example, we only look at Age (ignoring Gender/GOC)\n\n")
 
 cat("True age-specific rates (known):\n")
 true_rates <- data.frame(

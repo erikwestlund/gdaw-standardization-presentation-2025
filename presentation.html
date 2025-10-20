@@ -1289,21 +1289,21 @@ E[Y] = \sum_{\text{age}} E[Y \mid \text{Age}] \times P(\text{Age})
 <section id="age-specific-rates-by-gender" class="slide level2">
 <h2>Age-Specific Rates by Gender</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href aria-hidden="true" tabindex="-1"></a>age_sex_rates <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
-<span id="cb3-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex, age_group) <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href aria-hidden="true" tabindex="-1"></a>age_gender_rates <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender, age_group) <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">rate =</span> <span class="fu">mean</span>(late_presentation), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
 <span id="cb3-4"><a href aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href aria-hidden="true" tabindex="-1"></a>age_sex_rates</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-5"><a href aria-hidden="true" tabindex="-1"></a>age_gender_rates</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 3
-  sex   age_group   rate
-  &lt;fct&gt; &lt;fct&gt;      &lt;dbl&gt;
-1 Men   Young     0.0633
-2 Men   Middle    0.162 
-3 Men   Older     0.462 
-4 Women Young     0.0508
-5 Women Middle    0.153 
-6 Women Older     0.399 </code></pre>
+  gender age_group   rate
+  &lt;fct&gt;  &lt;fct&gt;      &lt;dbl&gt;
+1 Men    Young     0.0633
+2 Men    Middle    0.162 
+3 Men    Older     0.462 
+4 Women  Young     0.0508
+5 Women  Middle    0.153 
+6 Women  Older     0.399 </code></pre>
 </div>
 </div>
 <div class="fragment">
@@ -1371,8 +1371,8 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <h2>Step 1: Define Our “Ingredients”</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate observed rates in our data</span></span>
-<span id="cb5-2"><a href aria-hidden="true" tabindex="-1"></a>age_sex_rates <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex, age_group) <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href aria-hidden="true" tabindex="-1"></a>age_gender_rates <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender, age_group) <span class="sc">|&gt;</span></span>
 <span id="cb5-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">rate =</span> <span class="fu">mean</span>(late_presentation), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
 <span id="cb5-5"><a href aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-6"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Define standard rates (e.g., from national statistics)</span></span>
@@ -1382,20 +1382,20 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <span id="cb5-10"><a href aria-hidden="true" tabindex="-1"></a>  <span class="at">std_rate =</span> <span class="fu">c</span>(<span class="fl">0.04</span>, <span class="fl">0.14</span>, <span class="fl">0.42</span>)  <span class="co"># Externally-determined rates; they differ a little</span></span>
 <span id="cb5-11"><a href aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-12"><a href aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Get population counts by sex and age</span></span>
+<span id="cb5-13"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Get population counts by gender and age</span></span>
 <span id="cb5-14"><a href aria-hidden="true" tabindex="-1"></a>pop_counts <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
-<span id="cb5-15"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex, age_group) <span class="sc">|&gt;</span></span>
+<span id="cb5-15"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender, age_group) <span class="sc">|&gt;</span></span>
 <span id="cb5-16"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="step-2-calculate-smr-for-each-group" class="slide level2">
 <h2>Step 2: Calculate SMR for Each Group</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># For each sex, calculate observed and expected events</span></span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># For each gender, calculate observed and expected events</span></span>
 <span id="cb6-2"><a href aria-hidden="true" tabindex="-1"></a>indirect_std <span class="ot">&lt;-</span> pop_counts <span class="sc">|&gt;</span></span>
 <span id="cb6-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(standard_rates, <span class="at">by =</span> <span class="st">&quot;age_group&quot;</span>) <span class="sc">|&gt;</span>  <span class="co"># Merge in our rates</span></span>
-<span id="cb6-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(age_sex_rates, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;age_group&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb6-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(age_gender_rates, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;gender&quot;</span>, <span class="st">&quot;age_group&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender) <span class="sc">|&gt;</span></span>
 <span id="cb6-6"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb6-7"><a href aria-hidden="true" tabindex="-1"></a>    <span class="at">observed =</span> <span class="fu">sum</span>(n <span class="sc">*</span> rate),        <span class="co"># Actual events in our data</span></span>
 <span id="cb6-8"><a href aria-hidden="true" tabindex="-1"></a>    <span class="at">expected =</span> <span class="fu">sum</span>(n <span class="sc">*</span> std_rate),    <span class="co"># Expected if standard rates applied</span></span>
@@ -1409,10 +1409,10 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href aria-hidden="true" tabindex="-1"></a>indirect_std</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 4
-  sex   observed expected   SMR
-  &lt;fct&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
-1 Men       2085    1805. 1.16 
-2 Women     2338    2355. 0.993</code></pre>
+  gender observed expected   SMR
+  &lt;fct&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;
+1 Men        2085    1805. 1.16 
+2 Women      2338    2355. 0.993</code></pre>
 </div>
 </div>
 </section>
@@ -1428,8 +1428,8 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <p><strong>What would rates be if men and women had the same age distribution?</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate observed rates in our data</span></span>
-<span id="cb9-2"><a href aria-hidden="true" tabindex="-1"></a>age_sex_rates <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex, age_group) <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href aria-hidden="true" tabindex="-1"></a>age_gender_rates <span class="ot">&lt;-</span> sim2_data <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender, age_group) <span class="sc">|&gt;</span></span>
 <span id="cb9-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">rate =</span> <span class="fu">mean</span>(late_presentation), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>)</span>
 <span id="cb9-5"><a href aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-6"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Use marginal P(Age) as standard weights</span></span>
@@ -1441,19 +1441,19 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <section id="calculate-standardized-rates" class="slide level2">
 <h2>Calculate Standardized Rates</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Apply standard weights to sex-age specific rates</span></span>
-<span id="cb10-2"><a href aria-hidden="true" tabindex="-1"></a>direct_std <span class="ot">&lt;-</span> age_sex_rates <span class="sc">|&gt;</span></span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Apply standard weights to gender-age specific rates</span></span>
+<span id="cb10-2"><a href aria-hidden="true" tabindex="-1"></a>direct_std <span class="ot">&lt;-</span> age_gender_rates <span class="sc">|&gt;</span></span>
 <span id="cb10-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(std_weights, <span class="at">by =</span> <span class="st">&quot;age_group&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender) <span class="sc">|&gt;</span></span>
 <span id="cb10-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">standardized_rate =</span> <span class="fu">sum</span>(rate <span class="sc">*</span> weight))</span>
 <span id="cb10-6"><a href aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-7"><a href aria-hidden="true" tabindex="-1"></a>direct_std</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
-  sex   standardized_rate
-  &lt;fct&gt;             &lt;dbl&gt;
-1 Men               0.238
-2 Women             0.208</code></pre>
+  gender standardized_rate
+  &lt;fct&gt;              &lt;dbl&gt;
+1 Men                0.238
+2 Women              0.208</code></pre>
 </div>
 </div>
 </section>
@@ -1493,8 +1493,8 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <h2>Known Truth from Simulation</h2>
 <ul>
 <li class="fragment">Age effect: Young=5%, Middle=15%, Older=40%</li>
-<li class="fragment">Gender effect: Men higher within age groups (constant logit-scale effect)</li>
-<li class="fragment">GOC effect: Low/Mid higher than High (constant logit-scale effects)</li>
+<li class="fragment">Gender effect: Men higher within age groups</li>
+<li class="fragment">GOC effect: Low/Mid higher than High</li>
 </ul>
 </section>
 <section id="multiple-confounding-pathways" class="slide level2">
@@ -1529,14 +1529,14 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <div class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># By Gender</span></span>
 <span id="cb12-2"><a href aria-hidden="true" tabindex="-1"></a>sim3_data <span class="sc">|&gt;</span></span>
-<span id="cb12-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sex) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender) <span class="sc">|&gt;</span></span>
 <span id="cb12-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">crude_rate =</span> <span class="fu">mean</span>(late_presentation))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
-  sex   crude_rate
-  &lt;fct&gt;      &lt;dbl&gt;
-1 Men        0.244
-2 Women      0.258</code></pre>
+  gender crude_rate
+  &lt;fct&gt;       &lt;dbl&gt;
+1 Men         0.244
+2 Women       0.258</code></pre>
 </div>
 </div>
 </section>
@@ -1576,7 +1576,7 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <section id="poisson-regression" class="slide level2">
 <h2>Poisson Regression</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href aria-hidden="true" tabindex="-1"></a>glm_fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(late_presentation <span class="sc">~</span> sex <span class="sc">+</span> age_group <span class="sc">+</span> goc,</span>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href aria-hidden="true" tabindex="-1"></a>glm_fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(late_presentation <span class="sc">~</span> gender <span class="sc">+</span> age_group <span class="sc">+</span> goc,</span>
 <span id="cb16-2"><a href aria-hidden="true" tabindex="-1"></a>               <span class="at">family =</span> <span class="fu">poisson</span>(<span class="at">link =</span> <span class="st">&quot;log&quot;</span>),</span>
 <span id="cb16-3"><a href aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> sim3_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1602,12 +1602,12 @@ E[Y \mid \text{Gender}] = \sum_{\text{age}} E[Y \mid \text{Gender}, \text{Age}] 
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(emmeans)</span>
 <span id="cb17-2"><a href aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Get marginal probabilities by sex (adjusted for age and GOC)</span></span>
-<span id="cb17-4"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(glm_fit, <span class="sc">~</span> sex, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-3"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Get marginal probabilities by gender (adjusted for age and GOC)</span></span>
+<span id="cb17-4"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(glm_fit, <span class="sc">~</span> gender, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> sex    rate      SE  df asymp.LCL asymp.UCL
- Men   0.194 0.00466 Inf     0.185     0.204
- Women 0.167 0.00421 Inf     0.159     0.175
+<pre><code> gender  rate      SE  df asymp.LCL asymp.UCL
+ Men    0.194 0.00466 Inf     0.185     0.204
+ Women  0.167 0.00421 Inf     0.159     0.175
 
 Results are averaged over the levels of: age_group, goc 
 Confidence level used: 0.95 
@@ -1619,7 +1619,7 @@ Intervals are back-transformed from the log scale </code></pre>
 <h2>Gender Probability Differences</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Probability difference</span></span>
-<span id="cb19-2"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="fu">regrid</span>(<span class="fu">emmeans</span>(glm_fit, <span class="sc">~</span> sex, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)), <span class="at">reverse =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-2"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">pairs</span>(<span class="fu">regrid</span>(<span class="fu">emmeans</span>(glm_fit, <span class="sc">~</span> gender, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)), <span class="at">reverse =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> contrast    estimate      SE  df z.ratio p.value
  Women - Men  -0.0275 0.00514 Inf  -5.342  &lt;.0001
@@ -1634,7 +1634,7 @@ Results are averaged over the levels of: age_group, goc </code></pre>
 <section id="adjusted-probabilities-by-goc" class="slide level2">
 <h2>Adjusted Probabilities by GOC</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Get marginal probabilities by GOC (adjusted for age and sex)</span></span>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># Get marginal probabilities by GOC (adjusted for age and gender)</span></span>
 <span id="cb21-2"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">emmeans</span>(glm_fit, <span class="sc">~</span> goc, <span class="at">type =</span> <span class="st">&quot;response&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> goc   rate      SE  df asymp.LCL asymp.UCL
@@ -1642,7 +1642,7 @@ Results are averaged over the levels of: age_group, goc </code></pre>
  Mid  0.177 0.00490 Inf     0.168     0.187
  High 0.162 0.00560 Inf     0.151     0.173
 
-Results are averaged over the levels of: sex, age_group 
+Results are averaged over the levels of: gender, age_group 
 Confidence level used: 0.95 
 Intervals are back-transformed from the log scale </code></pre>
 </div>
@@ -1659,7 +1659,7 @@ Intervals are back-transformed from the log scale </code></pre>
  High - Low  -0.0417 0.00666 Inf  -6.259  &lt;.0001
  High - Mid  -0.0154 0.00655 Inf  -2.349  0.0493
 
-Results are averaged over the levels of: sex, age_group 
+Results are averaged over the levels of: gender, age_group 
 P value adjustment: tukey method for comparing a family of 3 estimates </code></pre>
 </div>
 </div>
@@ -1667,8 +1667,8 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <section id="interpretation" class="slide level2">
 <h2>Interpretation</h2>
 <ul>
-<li class="fragment"><strong>Low GOC contexts have 4.7 pp higher risk than High GOC</strong> (adjusted for age/sex)</li>
-<li class="fragment"><strong>Mid GOC contexts have 1.7 pp higher risk than High GOC</strong> (adjusted for age/sex)</li>
+<li class="fragment"><strong>Low GOC contexts have 4.7 pp higher risk than High GOC</strong> (adjusted for age/gender)</li>
+<li class="fragment"><strong>Mid GOC contexts have 1.7 pp higher risk than High GOC</strong> (adjusted for age/gender)</li>
 </ul>
 </section>
 <section id="model-based-approaches" class="slide level2">
@@ -1778,7 +1778,7 @@ P value adjustment: tukey method for comparing a family of 3 estimates </code></
 <p><strong>Erik Westlund</strong></p>
 <p>ewestlund@jhu.edu<br> Johns Hopkins Biostatistics Center<br> Johns Hopkins Bloomberg School of Public Health<br></p>
 <p><br></p>
-<p>Slides and code: <a href="https://github.com/JHBiostatCenter/geu-standardization-lecture">github.com/JHBiostatCenter/geu-standardization-lecture</a></p>
+<p>Slides and code: <a href="https://github.com/erikwestlund/gdaw-standardization-presentation-2025">github.com/erikwestlund/gdaw-standardization-presentation-2025</a></p>
 
 </section></section>
     </div>
